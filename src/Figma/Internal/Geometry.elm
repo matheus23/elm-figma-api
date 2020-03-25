@@ -13,7 +13,7 @@ import Json.Encode as E
 
 boundingBoxDecoder : Decoder BoundingBox
 boundingBoxDecoder =
-    D.decode BoundingBox
+    D.succeed BoundingBox
         |> D.required "x" D.float
         |> D.required "y" D.float
         |> D.required "width" D.float
@@ -22,7 +22,7 @@ boundingBoxDecoder =
 
 pointDecoder : Decoder Point
 pointDecoder =
-    D.decode Point
+    D.succeed Point
         |> D.required "x" D.float
         |> D.required "y" D.float
 
@@ -39,7 +39,7 @@ positionDecoder : Decoder Position
 positionDecoder =
     D.oneOf
         [ D.map AbsolutePosition pointDecoder
-        , D.decode RelativePositionTo
+        , D.succeed RelativePositionTo
             |> D.required "node_id" D.string
             |> D.required "node_offset" pointDecoder
         ]

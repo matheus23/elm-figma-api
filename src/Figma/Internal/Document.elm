@@ -86,7 +86,7 @@ sharedNodeFields =
 
 documentDecoder : Decoder Document
 documentDecoder =
-    D.decode Document
+    D.succeed Document
         |> sharedNodeFields
 
 
@@ -101,7 +101,7 @@ childrenDecoder =
 
 canvasDecoder : Decoder Canvas
 canvasDecoder =
-    D.decode Canvas
+    D.succeed Canvas
         |> sharedNodeFields
         |> D.required "backgroundColor" colorDecoder
         |> D.optional "exportSettings" (D.list exportSettingDecoder) []
@@ -129,7 +129,7 @@ frameNodeFields =
 
 frameDecoder : Decoder Frame
 frameDecoder =
-    D.decode Frame
+    D.succeed Frame
         |> sharedNodeFields
         |> frameNodeFields
 
@@ -140,7 +140,7 @@ frameDecoder =
 
 groupDecoder : Decoder Frame
 groupDecoder =
-    D.decode Frame
+    D.succeed Frame
         |> sharedNodeFields
         |> D.required "backgroundColor" colorDecoder
         |> D.optional "exportSettings" (D.list exportSettingDecoder) []
@@ -163,7 +163,7 @@ groupDecoder =
 
 booleanGroupDecoder : Decoder BooleanGroup
 booleanGroupDecoder =
-    D.decode BooleanGroup
+    D.succeed BooleanGroup
         |> sharedNodeFields
         |> vectorNodeFields
         |> D.required "booleanOperation" booleanOperationDecoder
@@ -187,8 +187,8 @@ booleanOperationDecoder =
                     "EXCLUDE" ->
                         D.succeed ExcludeOperation
 
-                    value ->
-                        D.fail <| "Unrecognized boolean operation value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized boolean operation value: " ++ unrecognized
             )
 
 
@@ -215,7 +215,7 @@ vectorNodeFields =
 
 vectorDecoder : Decoder Vector
 vectorDecoder =
-    D.decode Vector
+    D.succeed Vector
         |> sharedNodeFields
         |> vectorNodeFields
 
@@ -226,7 +226,7 @@ vectorDecoder =
 
 rectangleDecoder : Decoder Rectangle
 rectangleDecoder =
-    D.decode Rectangle
+    D.succeed Rectangle
         |> sharedNodeFields
         |> vectorNodeFields
         |> D.optional "cornerRadius" D.float 0
@@ -238,7 +238,7 @@ rectangleDecoder =
 
 sliceDecoder : Decoder Slice
 sliceDecoder =
-    D.decode Slice
+    D.succeed Slice
         |> sharedNodeFields
         |> D.optional "exportSettings" (D.list exportSettingDecoder) []
         |> D.required "absoluteBoundingBox" boundingBoxDecoder
@@ -250,7 +250,7 @@ sliceDecoder =
 
 textDecoder : Decoder Text
 textDecoder =
-    D.decode Text
+    D.succeed Text
         |> sharedNodeFields
         |> vectorNodeFields
         |> D.required "characters" D.string
@@ -265,7 +265,7 @@ textDecoder =
 
 instanceDecoder : Decoder Instance
 instanceDecoder =
-    D.decode Instance
+    D.succeed Instance
         |> sharedNodeFields
         |> frameNodeFields
         |> D.required "componentId" D.string
@@ -277,7 +277,7 @@ instanceDecoder =
 
 exportSettingDecoder : Decoder ExportSetting
 exportSettingDecoder =
-    D.decode ExportSetting
+    D.succeed ExportSetting
         |> D.required "suffix" D.string
         |> D.required "format" exportFormatDecoder
         |> D.required "constraint" exportConstraintDecoder
@@ -298,8 +298,8 @@ exportFormatDecoder =
                     "SVG" ->
                         D.succeed SvgFormat
 
-                    value ->
-                        D.fail <| "Unrecognized export format value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized export format value: " ++ unrecognized
             )
 
 
@@ -322,6 +322,6 @@ exportConstraintDecoder =
                     "HEIGHT" ->
                         D.map HeightConstraint value
 
-                    type_ ->
-                        D.fail <| "Unrecognized export constraint type: " ++ type_
+                    unrecognized ->
+                        D.fail <| "Unrecognized export constraint type: " ++ unrecognized
             )

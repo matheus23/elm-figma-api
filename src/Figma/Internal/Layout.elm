@@ -36,7 +36,7 @@ gridDecoder =
 
 columnsGridDecoder : Decoder Columns
 columnsGridDecoder =
-    D.decode Columns
+    D.succeed Columns
         |> D.required "sectionSize" D.float
         |> D.required "visible" D.bool
         |> D.required "color" colorDecoder
@@ -48,7 +48,7 @@ columnsGridDecoder =
 
 rowsGridDecoder : Decoder Rows
 rowsGridDecoder =
-    D.decode Rows
+    D.succeed Rows
         |> D.required "sectionSize" D.float
         |> D.required "visible" D.bool
         |> D.required "color" colorDecoder
@@ -60,7 +60,7 @@ rowsGridDecoder =
 
 squareGridDecoder : Decoder Grid
 squareGridDecoder =
-    D.decode Grid
+    D.succeed Grid
         |> D.required "sectionSize" D.float
         |> D.required "visible" D.bool
         |> D.required "color" colorDecoder
@@ -81,8 +81,8 @@ alignDecoder =
                     "CENTER" ->
                         D.succeed CenterAlign
 
-                    value ->
-                        D.fail <| "Unrecognized grid align value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized grid align value: " ++ unrecognized
             )
 
 
@@ -111,8 +111,8 @@ verticalConstraintDecoder =
                     "SCALE" ->
                         D.succeed ScaleVerticalConstraint
 
-                    value ->
-                        D.fail <| "Unrecognized layout constraint value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized layout constraint value: " ++ unrecognized
             )
 
 
@@ -137,6 +137,6 @@ horizontalConstraintDecoder =
                     "SCALE" ->
                         D.succeed ScaleHorizontalConstraint
 
-                    value ->
-                        D.fail <| "Unrecognized layout constraint value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized layout constraint value: " ++ unrecognized
             )

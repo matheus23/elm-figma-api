@@ -91,8 +91,8 @@ blendModeDecoder =
                     "LUMINOSITY" ->
                         D.succeed LuminosityMode
 
-                    value ->
-                        D.fail <| "Unrecognized blend mode value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized blend mode value: " ++ unrecognized
             )
 
 
@@ -125,7 +125,7 @@ effectDecoder =
 
 shadowDecoder : Decoder Shadow
 shadowDecoder =
-    D.decode Shadow
+    D.succeed Shadow
         |> D.required "visible" D.bool
         |> D.required "radius" D.float
         |> D.required "color" colorDecoder
@@ -135,7 +135,7 @@ shadowDecoder =
 
 blurDecoder : Decoder Blur
 blurDecoder =
-    D.decode Blur
+    D.succeed Blur
         |> D.required "visible" D.bool
         |> D.required "radius" D.float
 
@@ -146,7 +146,7 @@ blurDecoder =
 
 textStyleDecoder : Decoder TextStyle
 textStyleDecoder =
-    D.decode TextStyle
+    D.succeed TextStyle
         |> D.required "fontFamily" D.string
         |> D.required "fontPostScriptName" D.string
         |> D.optional "italic" D.bool False
@@ -162,7 +162,7 @@ textStyleDecoder =
 
 typeStyleOverrideDecoder : Decoder TextStyleOverride
 typeStyleOverrideDecoder =
-    D.decode TextStyleOverride
+    D.succeed TextStyleOverride
         |> D.optional "fontFamily" (D.maybe D.string) Nothing
         |> D.optional "fontPostScriptName" (D.maybe D.string) Nothing
         |> D.optional "italic" (D.maybe D.bool) Nothing
@@ -180,7 +180,7 @@ styleOverrideDecoder : Decoder (Dict Int TextStyleOverride)
 styleOverrideDecoder =
     let
         toInt =
-            String.toInt >> Result.withDefault 0
+            String.toInt >> Maybe.withDefault 0
     in
     D.keyValuePairs typeStyleOverrideDecoder
         |> D.andThen
@@ -206,8 +206,8 @@ verticalAlignDecoder =
                     "BOTTOM" ->
                         D.succeed BottomAlign
 
-                    value ->
-                        D.fail <| "Unrecognized text alignment value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized text alignment value: " ++ unrecognized
             )
 
 
@@ -229,8 +229,8 @@ horizontalAlignDecoder =
                     "JUSTIFIED" ->
                         D.succeed JustifiedAlign
 
-                    value ->
-                        D.fail <| "Unrecognized text alignment value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized text alignment value: " ++ unrecognized
             )
 
 
@@ -253,8 +253,8 @@ strokeAlignDecoder =
                     "CENTER" ->
                         D.succeed CenterStroke
 
-                    value ->
-                        D.fail <| "Unrecognized stroke align value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized stroke align value: " ++ unrecognized
             )
 
 
@@ -289,14 +289,14 @@ paintDecoder =
                     "EMOJI" ->
                         D.succeed EmojiPaint
 
-                    _ ->
-                        D.fail <| "Unsupported paint type: " ++ hint
+                    unrecognized ->
+                        D.fail <| "Unsupported paint type: " ++ unrecognized
             )
 
 
 solidColorDecoder : Decoder SolidColor
 solidColorDecoder =
-    D.decode SolidColor
+    D.succeed SolidColor
         |> D.optional "visible" D.bool True
         |> D.optional "opacity" D.float 1.0
         |> D.required "color" colorDecoder
@@ -305,7 +305,7 @@ solidColorDecoder =
 
 gradientDecoder : Decoder Gradient
 gradientDecoder =
-    D.decode Gradient
+    D.succeed Gradient
         |> D.optional "visible" D.bool True
         |> D.optional "opacity" D.float 1.0
         |> D.required "gradientHandlePositions" (D.index 0 vec2Decoder)
@@ -317,7 +317,7 @@ gradientDecoder =
 
 imageDecoder : Decoder Image
 imageDecoder =
-    D.decode Image
+    D.succeed Image
         |> D.optional "visible" D.bool True
         |> D.optional "opacity" D.float 1.0
         |> D.required "scaleMode" scaleModeDecoder
@@ -342,29 +342,21 @@ scaleModeDecoder =
                     "STRETCH" ->
                         D.succeed StretchMode
 
-                    value ->
-                        D.fail <| "Unrecognized scale mode value: " ++ value
+                    unrecognized ->
+                        D.fail <| "Unrecognized scale mode value: " ++ unrecognized
             )
 
 
 colorStopDecoder : Decoder ColorStop
 colorStopDecoder =
-    D.decode ColorStop
+    D.succeed ColorStop
         |> D.required "position" D.float
         |> D.required "color" colorDecoder
 
 
 colorDecoder : Decoder Color
 colorDecoder =
-    let
-        color r g b a =
-            Color.rgba
-                (r * 255 |> round)
-                (g * 255 |> round)
-                (b * 255 |> round)
-                a
-    in
-    D.map4 color
+    D.map4 Color.rgba
         (D.field "r" D.float)
         (D.field "g" D.float)
         (D.field "b" D.float)
@@ -377,6 +369,6 @@ colorDecoder =
 
 vec2Decoder : Decoder Vec2
 vec2Decoder =
-    D.decode V.vec2
+    D.succeed V.vec2
         |> D.required "x" D.float
         |> D.required "y" D.float

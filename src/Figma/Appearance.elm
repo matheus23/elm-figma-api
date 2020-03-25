@@ -24,7 +24,7 @@ module Figma.Appearance exposing
 -}
 
 import Color exposing (Color)
-import Math.Vector2 as V exposing (Vec2)
+import Math.Vector2 exposing (Vec2)
 
 
 

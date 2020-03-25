@@ -45,21 +45,15 @@ type Tree
 {-| Creates a singleton tree. This corresponds to `tree v []`.
 -}
 singleton : Node -> Tree
-singleton node =
-    T.singleton node
-        |> Tree
+singleton =
+    T.singleton >> Tree
 
 
 {-| Construct a tree from a node and a list of children.
 -}
 tree : Node -> List Tree -> Tree
-tree node children =
-    let
-        children_ =
-            List.map toRosetree children
-    in
-    T.tree node children_
-        |> Tree
+tree node_ children_ =
+    Tree (T.tree node_ (List.map toRosetree children_))
 
 
 {-| Return a Rosetree data structure, which can be used with

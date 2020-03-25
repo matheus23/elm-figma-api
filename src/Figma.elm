@@ -41,16 +41,17 @@ module Figma exposing
 
 -}
 
-import Date exposing (Date)
 import Dict exposing (Dict)
 import Figma.Document exposing (..)
 import Figma.Geometry exposing (..)
 import Figma.Internal.Document exposing (..)
 import Figma.Internal.Geometry exposing (..)
 import Http
+import Iso8601
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline as D
 import Json.Encode as E
+import Time
 
 
 
@@ -80,8 +81,8 @@ oauth2Token token =
 
 
 authHeader : AuthenticationToken -> Http.Header
-authHeader token =
-    case token of
+authHeader authToken =
+    case authToken of
         Personal token ->
             Http.header "X-Figma-Token" token
 
@@ -138,8 +139,9 @@ Alternatively `getFile` can be chained together with another request (or any oth
 getFile :
     AuthenticationToken
     -> FileKey
-    -> Http.Request File
-getFile token fileKey =
+    -> (Result Http.Error File -> msg)
+    -> Cmd msg
+getFile token fileKey handle =
     let
         url =
             baseUrl ++ "/v1/files/" ++ fileKey
@@ -149,9 +151,9 @@ getFile token fileKey =
         , headers = [ authHeader token ]
         , url = url
         , body = Http.emptyBody
-        , expect = Http.expectJson fileDecoder
+        , expect = Http.expectJson handle fileDecoder
         , timeout = Nothing
-        , withCredentials = False
+        , tracker = Nothing
         }
 
 
@@ -168,7 +170,7 @@ type alias File =
     --, name : String
     , thumbnailUrl : String
 
-    --, lastModified : Date
+    --, lastModified : Time.Posix
     , document : Tree
     , components : Dict NodeId ComponentMeta
     }
@@ -176,7 +178,7 @@ type alias File =
 
 fileDecoder : Decoder File
 fileDecoder =
-    D.decode File
+    D.succeed File
         |> D.required "schemaVersion" D.int
         --|> D.required "name" D.string
         |> D.required "thumbnailUrl" D.string
@@ -195,7 +197,7 @@ type alias ComponentMeta =
 
 componentMetaDecoder : Decoder ComponentMeta
 componentMetaDecoder =
-    D.decode ComponentMeta
+    D.succeed ComponentMeta
         |> D.required "name" D.string
         |> D.required "description" D.string
 
@@ -214,7 +216,7 @@ type alias VersionId =
 -}
 type alias Version =
     { id : String
-    , createdAt : Date
+    , createdAt : Time.Posix
     , label : String
     , description : String
     , user : User
@@ -227,8 +229,9 @@ getFileWithVersion :
     AuthenticationToken
     -> FileKey
     -> VersionId
-    -> Http.Request File
-getFileWithVersion token fileKey versionId =
+    -> (Result Http.Error File -> msg)
+    -> Cmd msg
+getFileWithVersion token fileKey versionId handle =
     let
         url =
             baseUrl ++ "/v1/files/" ++ fileKey ++ "?version=" ++ versionId
@@ -238,9 +241,9 @@ getFileWithVersion token fileKey versionId =
         , headers = [ authHeader token ]
         , url = url
         , body = Http.emptyBody
-        , expect = Http.expectJson fileDecoder
+        , expect = Http.expectJson handle fileDecoder
         , timeout = Nothing
-        , withCredentials = False
+        , tracker = Nothing
         }
 
 
@@ -254,8 +257,9 @@ Note that version history will not include autosaved versions.
 getVersions :
     AuthenticationToken
     -> FileKey
-    -> Http.Request (List Version)
-getVersions token fileKey =
+    -> (Result Http.Error (List Version) -> msg)
+    -> Cmd msg
+getVersions token fileKey handle =
     let
         url =
             baseUrl ++ "/v1/files/" ++ fileKey ++ "/versions"
@@ -265,9 +269,9 @@ getVersions token fileKey =
         , headers = [ authHeader token ]
         , url = url
         , body = Http.emptyBody
-        , expect = Http.expectJson versionsDecoder
+        , expect = Http.expectJson handle versionsDecoder
         , timeout = Nothing
-        , withCredentials = False
+        , tracker = Nothing
         }
 
 
@@ -278,7 +282,7 @@ versionsDecoder =
 
 versionDecoder : Decoder Version
 versionDecoder =
-    D.decode Version
+    D.succeed Version
         |> D.required "id" D.string
         |> D.required "created_at" dateDecoder
         |> D.required "label" D.string
@@ -291,8 +295,9 @@ versionDecoder =
 getComments :
     AuthenticationToken
     -> FileKey
-    -> Http.Request (List Comment)
-getComments token fileKey =
+    -> (Result Http.Error (List Comment) -> msg)
+    -> Cmd msg
+getComments token fileKey handle =
     let
         url =
             baseUrl ++ "/v1/files/" ++ fileKey ++ "/comments"
@@ -302,9 +307,9 @@ getComments token fileKey =
         , headers = [ authHeader token ]
         , url = url
         , body = Http.emptyBody
-        , expect = Http.expectJson commentsDecoder
+        , expect = Http.expectJson handle commentsDecoder
         , timeout = Nothing
-        , withCredentials = False
+        , tracker = Nothing
         }
 
 
@@ -315,8 +320,9 @@ postComment :
     AuthenticationToken
     -> FileKey
     -> { message : String, position : Position }
-    -> Http.Request Comment
-postComment token fileKey comment =
+    -> (Result Http.Error Comment -> msg)
+    -> Cmd msg
+postComment token fileKey comment handle =
     let
         url =
             baseUrl
@@ -329,9 +335,9 @@ postComment token fileKey comment =
         , headers = [ authHeader token ]
         , url = url
         , body = Http.jsonBody <| encodeComment comment
-        , expect = Http.expectJson commentDecoder
+        , expect = Http.expectJson handle commentDecoder
         , timeout = Nothing
-        , withCredentials = False
+        , tracker = Nothing
         }
 
 
@@ -357,7 +363,7 @@ type alias FileMeta =
     { key : FileKey
     , name : String
     , thumbnailUrl : String
-    , lastModified : Date
+    , lastModified : Time.Posix
     }
 
 
@@ -374,20 +380,21 @@ type alias Project =
 getFiles :
     AuthenticationToken
     -> ProjectId
-    -> Http.Request (List FileMeta)
-getFiles token projectId =
+    -> (Result Http.Error (List FileMeta) -> msg)
+    -> Cmd msg
+getFiles token projectId handle =
     let
         url =
-            baseUrl ++ "/v1/projects/" ++ toString projectId ++ "/files"
+            baseUrl ++ "/v1/projects/" ++ String.fromInt projectId ++ "/files"
     in
     Http.request
         { method = "GET"
         , headers = [ authHeader token ]
         , url = url
         , body = Http.emptyBody
-        , expect = Http.expectJson filesDecoder
+        , expect = Http.expectJson handle filesDecoder
         , timeout = Nothing
-        , withCredentials = False
+        , tracker = Nothing
         }
 
 
@@ -398,7 +405,7 @@ filesDecoder =
 
 fileMetaDecoder : Decoder FileMeta
 fileMetaDecoder =
-    D.decode FileMeta
+    D.succeed FileMeta
         |> D.required "key" D.string
         |> D.required "name" D.string
         |> D.required "thumbnail_url" D.string
@@ -411,8 +418,8 @@ Note that this will only return projects visible to the authenticated user
 or owner of the developer token.
 
 -}
-getProjects : AuthenticationToken -> TeamId -> Http.Request (List Project)
-getProjects token teamId =
+getProjects : AuthenticationToken -> TeamId -> (Result Http.Error (List Project) -> msg) -> Cmd msg
+getProjects token teamId handle =
     let
         url =
             baseUrl ++ "/v1/teams/" ++ teamId ++ "/projects"
@@ -422,9 +429,9 @@ getProjects token teamId =
         , headers = [ authHeader token ]
         , url = url
         , body = Http.emptyBody
-        , expect = Http.expectJson projectsDecoder
+        , expect = Http.expectJson handle projectsDecoder
         , timeout = Nothing
-        , withCredentials = False
+        , tracker = Nothing
         }
 
 
@@ -435,7 +442,7 @@ projectsDecoder =
 
 projectDecoder : Decoder Project
 projectDecoder =
-    D.decode Project
+    D.succeed Project
         |> D.required "key" D.int
         |> D.required "name" D.string
 
@@ -453,13 +460,14 @@ exportNodesAsPng :
     AuthenticationToken
     -> FileKey
     -> List NodeId
-    -> Http.Request (List ExportedImage)
-exportNodesAsPng token fileKey ids =
+    -> (Result Http.Error (List ExportedImage) -> msg)
+    -> Cmd msg
+exportNodesAsPng token fileKey ids handle =
     let
         options =
             { format = PngFormat, scale = 1.0 }
     in
-    exportNodesWithOptions token fileKey options ids
+    exportNodesWithOptions token fileKey options ids handle
 
 
 {-| Construct a web request to export a list of document nodes into JPEG files at 1x resolution.
@@ -471,13 +479,14 @@ exportNodesAsJpeg :
     AuthenticationToken
     -> FileKey
     -> List NodeId
-    -> Http.Request (List ExportedImage)
-exportNodesAsJpeg token fileKey ids =
+    -> (Result Http.Error (List ExportedImage) -> msg)
+    -> Cmd msg
+exportNodesAsJpeg token fileKey ids handle =
     let
         options =
             { format = JpegFormat, scale = 1.0 }
     in
-    exportNodesWithOptions token fileKey options ids
+    exportNodesWithOptions token fileKey options ids handle
 
 
 {-| Construct a web request to export a list of document nodes into SVG files at 1x resolution.
@@ -489,13 +498,14 @@ exportNodesAsSvg :
     AuthenticationToken
     -> FileKey
     -> List NodeId
-    -> Http.Request (List ExportedImage)
-exportNodesAsSvg token fileKey ids =
+    -> (Result Http.Error (List ExportedImage) -> msg)
+    -> Cmd msg
+exportNodesAsSvg token fileKey ids handle =
     let
         options =
             { format = SvgFormat, scale = 1.0 }
     in
-    exportNodesWithOptions token fileKey options ids
+    exportNodesWithOptions token fileKey options ids handle
 
 
 {-| Construct a web request to export a list of document nodes into the given `format` files using
@@ -506,14 +516,15 @@ exportNodesWithOptions :
     -> FileKey
     -> { format : ExportFormat, scale : Float }
     -> List NodeId
-    -> Http.Request (List ExportedImage)
-exportNodesWithOptions token fileKey options ids =
+    -> (Result Http.Error (List ExportedImage) -> msg)
+    -> Cmd msg
+exportNodesWithOptions token fileKey options ids handle =
     let
         format =
             formatToString options.format
 
         scale =
-            clamp 0.01 4 options.scale |> toString
+            clamp 0.01 4 options.scale |> String.fromFloat
 
         ids_ =
             String.join "," ids
@@ -534,9 +545,9 @@ exportNodesWithOptions token fileKey options ids =
         , headers = [ authHeader token ]
         , url = url
         , body = Http.emptyBody
-        , expect = Http.expectJson exportDataDecoder
+        , expect = Http.expectJson handle exportDataDecoder
         , timeout = Nothing
-        , withCredentials = False
+        , tracker = Nothing
         }
 
 
@@ -586,8 +597,8 @@ type alias CommentData =
     , fileKey : FileKey
     , position : Position
     , user : User
-    , createdAt : Date
-    , resolvedAt : Maybe Date
+    , createdAt : Time.Posix
+    , resolvedAt : Maybe Time.Posix
     , orderId : String
     }
 
@@ -600,8 +611,8 @@ type alias ReplyData =
     , fileKey : FileKey
     , parentId : String -- TODO commentId
     , user : User
-    , createdAt : Date
-    , resolvedAt : Maybe Date
+    , createdAt : Time.Posix
+    , resolvedAt : Maybe Time.Posix
     }
 
 
@@ -619,7 +630,7 @@ commentsDecoder =
 
 commentDecoder : Decoder Comment
 commentDecoder =
-    (D.decode CommentData
+    (D.succeed CommentData
         |> D.required "id" D.string
         |> D.required "message" D.string
         |> D.required "file_key" D.string
@@ -634,7 +645,7 @@ commentDecoder =
 
 replyDecoder : Decoder Comment
 replyDecoder =
-    (D.decode ReplyData
+    (D.succeed ReplyData
         |> D.required "id" D.string
         |> D.required "message" D.string
         |> D.required "file_key" D.string
@@ -680,7 +691,7 @@ type alias User =
 
 userDecoder : Decoder User
 userDecoder =
-    D.decode User
+    D.succeed User
         |> D.required "handle" D.string
         |> D.required "img_url" D.string
 
@@ -689,17 +700,6 @@ userDecoder =
 -- MISC DECODERS
 
 
-dateDecoder : Decoder Date
+dateDecoder : Decoder Time.Posix
 dateDecoder =
-    let
-        epoch =
-            Date.fromTime 0
-    in
-    D.string
-        |> D.andThen
-            (\value ->
-                D.succeed <|
-                    (Date.fromString value
-                        |> Result.withDefault epoch
-                    )
-            )
+    Iso8601.decoder
