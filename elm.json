@@ -3,7 +3,7 @@
     "name": "matheus23/elm-figma-api",
     "summary": "Figma web API endpoints, data structures and helper functions.",
     "license": "MIT",
-    "version": "2.0.0",
+    "version": "1.0.0",
     "exposed-modules": [
         "Figma",
         "Figma.Document",
