@@ -1,15 +1,14 @@
-module Figma.Internal.Geometry
-    exposing
-        ( boundingBoxDecoder
-        , pointDecoder
-        , positionDecoder
-        , encodePoint
-        )
+module Figma.Internal.Geometry exposing
+    ( boundingBoxDecoder
+    , encodePoint
+    , pointDecoder
+    , positionDecoder
+    )
 
+import Figma.Geometry exposing (..)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline as D
 import Json.Encode as E
-import Figma.Geometry exposing (..)
 
 
 boundingBoxDecoder : Decoder BoundingBox
@@ -35,6 +34,7 @@ encodePoint point =
         , ( "y", E.float point.y )
         ]
 
+
 positionDecoder : Decoder Position
 positionDecoder =
     D.oneOf
@@ -43,4 +43,3 @@ positionDecoder =
             |> D.required "node_id" D.string
             |> D.required "node_offset" pointDecoder
         ]
- 

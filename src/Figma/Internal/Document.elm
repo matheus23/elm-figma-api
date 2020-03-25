@@ -1,14 +1,11 @@
-module Figma.Internal.Document
-    exposing
-        ( treeDecoder
-        )
+module Figma.Internal.Document exposing (treeDecoder)
 
-import Json.Decode as D exposing (Decoder)
-import Json.Decode.Pipeline as D
 import Figma.Document exposing (..)
-import Figma.Internal.Layout exposing (..)
 import Figma.Internal.Appearance exposing (..)
 import Figma.Internal.Geometry exposing (..)
+import Figma.Internal.Layout exposing (..)
+import Json.Decode as D exposing (Decoder)
+import Json.Decode.Pipeline as D
 
 
 {-| Recursively decode the entire document tree.
@@ -312,19 +309,19 @@ exportConstraintDecoder =
         value =
             D.field "value" D.float
     in
-        D.field "type" D.string
-            |> D.andThen
-                (\type_ ->
-                    case type_ of
-                        "SCALE" ->
-                            D.map ScaleConstraint value
+    D.field "type" D.string
+        |> D.andThen
+            (\type_ ->
+                case type_ of
+                    "SCALE" ->
+                        D.map ScaleConstraint value
 
-                        "WIDTH" ->
-                            D.map WidthConstraint value
+                    "WIDTH" ->
+                        D.map WidthConstraint value
 
-                        "HEIGHT" ->
-                            D.map HeightConstraint value
+                    "HEIGHT" ->
+                        D.map HeightConstraint value
 
-                        type_ ->
-                            D.fail <| "Unrecognized export constraint type: " ++ type_
-                )
+                    type_ ->
+                        D.fail <| "Unrecognized export constraint type: " ++ type_
+            )

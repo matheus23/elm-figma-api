@@ -1,21 +1,8 @@
-module Figma.Appearance
-    exposing
-        ( BlendMode(..)
-        , Effect(..)
-        , Shadow
-        , Blur
-        , TextVerticalAlign(..)
-        , TextHorizontalAlign(..)
-        , StrokeAlign(..)
-        , ScaleMode(..)
-        , Paint(..)
-        , SolidColor
-        , Gradient
-        , Image
-        , ColorStop
-        , TextStyle
-        , TextStyleOverride
-        )
+module Figma.Appearance exposing
+    ( StrokeAlign(..), Paint(..), SolidColor, Image, ScaleMode(..), Gradient, ColorStop
+    , TextStyle, TextStyleOverride, TextHorizontalAlign(..), TextVerticalAlign(..)
+    , BlendMode(..), Effect(..), Blur, Shadow
+    )
 
 {-|
 
@@ -38,6 +25,7 @@ module Figma.Appearance
 
 import Color exposing (Color)
 import Math.Vector2 as V exposing (Vec2)
+
 
 
 -- BLEND MODE
@@ -202,21 +190,21 @@ type alias SolidColor =
 
 {-| A color gradient paint. In particular:
 
-- `start`: position of the start handle for the gradient (value 0, for the purposes of calculating gradient stops)
-- `stop`: position of the end handle for the gradient (value 1), 
-- `width`: width of the gradient (only relevant for non-linear gradients)
+  - `start`: position of the start handle for the gradient (value 0, for the purposes of calculating gradient stops)
+  - `stop`: position of the end handle for the gradient (value 1),
+  - `width`: width of the gradient (only relevant for non-linear gradients)
 
 These three values are stored in normalized object space. Normalized object space is if the top left corner of the bounding box of the object is `0, 0` and the bottom right is `1,1`.
 
-- `colorStops`: positions of key points along the gradient axis with the colors anchored there. Colors along the gradient are interpolated smoothly between neighboring gradient stops.
+  - `colorStops`: positions of key points along the gradient axis with the colors anchored there. Colors along the gradient are interpolated smoothly between neighboring gradient stops.
 
 -}
 type alias Gradient =
     { isVisible : Bool
     , opacity : Float
-    , start: Vec2
-    , stop: Vec2
-    , width: Vec2
+    , start : Vec2
+    , stop : Vec2
+    , width : Vec2
     , colorStops : List ColorStop
     , blendMode : BlendMode
     }

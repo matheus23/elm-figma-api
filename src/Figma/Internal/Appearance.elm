@@ -1,28 +1,28 @@
-module Figma.Internal.Appearance
-    exposing
-        ( blendModeDecoder
-        , effectDecoder
-        , shadowDecoder
-        , blurDecoder
-        , textStyleDecoder
-        , styleOverrideDecoder
-        , verticalAlignDecoder
-        , horizontalAlignDecoder
-        , strokeAlignDecoder
-        , paintDecoder
-        , solidColorDecoder
-        , gradientDecoder
-        , imageDecoder
-        , colorStopDecoder
-        , colorDecoder
-        )
+module Figma.Internal.Appearance exposing
+    ( blendModeDecoder
+    , blurDecoder
+    , colorDecoder
+    , colorStopDecoder
+    , effectDecoder
+    , gradientDecoder
+    , horizontalAlignDecoder
+    , imageDecoder
+    , paintDecoder
+    , shadowDecoder
+    , solidColorDecoder
+    , strokeAlignDecoder
+    , styleOverrideDecoder
+    , textStyleDecoder
+    , verticalAlignDecoder
+    )
 
-import Dict exposing (Dict)
 import Color exposing (Color)
+import Dict exposing (Dict)
+import Figma.Appearance exposing (..)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline as D
 import Math.Vector2 as V exposing (Vec2)
-import Figma.Appearance exposing (..)
+
 
 
 -- BLEND MODE
@@ -182,13 +182,13 @@ styleOverrideDecoder =
         toInt =
             String.toInt >> Result.withDefault 0
     in
-        (D.keyValuePairs typeStyleOverrideDecoder)
-            |> D.andThen
-                (\values ->
-                    List.map (\( id, value ) -> ( toInt id, value )) values
-                        |> Dict.fromList
-                        |> D.succeed
-                )
+    D.keyValuePairs typeStyleOverrideDecoder
+        |> D.andThen
+            (\values ->
+                List.map (\( id, value ) -> ( toInt id, value )) values
+                    |> Dict.fromList
+                    |> D.succeed
+            )
 
 
 verticalAlignDecoder : Decoder TextVerticalAlign
@@ -364,11 +364,11 @@ colorDecoder =
                 (b * 255 |> round)
                 a
     in
-        D.map4 color
-            (D.field "r" D.float)
-            (D.field "g" D.float)
-            (D.field "b" D.float)
-            (D.field "a" D.float)
+    D.map4 color
+        (D.field "r" D.float)
+        (D.field "g" D.float)
+        (D.field "b" D.float)
+        (D.field "a" D.float)
 
 
 

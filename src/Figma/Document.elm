@@ -1,30 +1,8 @@
-module Figma.Document
-    exposing
-        ( Tree
-        , Node(..)
-        , NodeId
-        , Document
-        , Canvas
-        , Frame
-        , Group
-        , BooleanGroup
-        , Vector
-        , Rectangle
-        , Slice
-        , Text
-        , Component
-        , Instance
-        , ExportFormat(..)
-        , ExportConstraint(..)
-        , ExportSetting
-        , BooleanOperation(..)
-        , singleton
-        , tree
-        , node
-        , children
-        , foldl
-        , toRosetree
-        )
+module Figma.Document exposing
+    ( Node(..), Tree, NodeId, Document, Canvas, Frame, Group, BooleanGroup, BooleanOperation(..), Vector, Rectangle, Slice, Text, Component, Instance
+    , ExportConstraint(..), ExportSetting, ExportFormat(..)
+    , singleton, tree, node, children, foldl, toRosetree
+    )
 
 {-| This module provides several data structures to describe a Figma document
 and functions which operate on it.
@@ -48,10 +26,10 @@ and functions which operate on it.
 
 import Color exposing (Color)
 import Dict exposing (Dict)
-import Tree as T
-import Figma.Geometry exposing (..)
 import Figma.Appearance exposing (..)
+import Figma.Geometry exposing (..)
 import Figma.Layout exposing (..)
+import Tree as T
 
 
 {-| Represents a multiway tree made of `Node`'s.
@@ -80,8 +58,8 @@ tree node children =
         children_ =
             List.map toRosetree children
     in
-        T.tree node children_
-            |> Tree
+    T.tree node children_
+        |> Tree
 
 
 {-| Return a Rosetree data structure, which can be used with
@@ -129,7 +107,7 @@ type alias NodeId =
 
 
 {-| A Figma document consists as tree of nodes. It starts with a
-`DocumentNode`, which has one or more `CanvasNode`'s children — called *Pages* in the UI —
+`DocumentNode`, which has one or more `CanvasNode`'s children — called _Pages_ in the UI —
 which in turn contain nodes for frames, images, vector shapes, etc.
 -}
 type Node

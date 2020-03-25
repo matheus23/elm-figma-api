@@ -1,13 +1,7 @@
-module Figma.Layout
-    exposing
-        ( LayoutVerticalConstraint(..)
-        , LayoutHorizontalConstraint(..)
-        , LayoutGrid(..)
-        , Columns
-        , Rows
-        , Grid
-        , GridAlign(..)
-        )
+module Figma.Layout exposing
+    ( LayoutHorizontalConstraint(..), LayoutVerticalConstraint(..)
+    , LayoutGrid(..), Columns, Rows, Grid, GridAlign(..)
+    )
 
 {-|
 
@@ -26,7 +20,7 @@ module Figma.Layout
 import Color exposing (Color)
 
 
-{-| Guides to align and place objects within a parent container. 
+{-| Guides to align and place objects within a parent container.
 -}
 type LayoutGrid
     = ColumnsGrid Columns
@@ -42,38 +36,38 @@ type LayoutGrid
 
 -}
 type GridAlign
-    = MinAlign  
+    = MinAlign
     | CenterAlign
-    | MaxAlign  
+    | MaxAlign
 
 
-{-| A vertical grid made of columns. 
+{-| A vertical grid made of columns.
 -}
 type alias Columns =
     { width : Float
     , isVisible : Bool
     , color : Color
     , gutter : Float
-    , margin : Float  
+    , margin : Float
     , count : Int
     , align : GridAlign
     }
 
 
-{-| A horizontal grid made of rows. 
+{-| A horizontal grid made of rows.
 -}
 type alias Rows =
     { height : Float
     , isVisible : Bool
     , color : Color
     , gutter : Float
-    , margin : Float 
+    , margin : Float
     , count : Int
     , align : GridAlign
     }
 
 
-{-| A square grid. 
+{-| A square grid.
 -}
 type alias Grid =
     { width : Float

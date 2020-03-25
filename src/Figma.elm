@@ -1,34 +1,11 @@
-module Figma
-    exposing
-        ( personalToken
-        , oauth2Token
-        , getFile
-        , getFiles
-        , getVersions
-        , getFileWithVersion  
-        , getProjects
-        , getComments
-        , postComment
-        , exportNodesAsPng
-        , exportNodesAsJpeg
-        , exportNodesAsSvg
-        , exportNodesWithOptions
-        , AuthenticationToken
-        , ProjectId
-        , TeamId
-        , Project
-        , FileMeta
-        , FileKey
-        , VersionId
-        , ComponentMeta
-        , File
-        , Version
-        , ExportedImage
-        , User
-        , Comment(..)
-        , CommentData
-        , ReplyData
-        )
+module Figma exposing
+    ( AuthenticationToken, personalToken, oauth2Token
+    , FileKey, File, getFile, ComponentMeta, VersionId, Version, getVersions, getFileWithVersion
+    , Comment(..), CommentData, ReplyData, getComments, postComment
+    , exportNodesAsPng, exportNodesAsJpeg, exportNodesAsSvg, exportNodesWithOptions, ExportedImage
+    , TeamId, ProjectId, Project, getProjects, getFiles, FileMeta
+    , User
+    )
 
 {-| This module provides endpoints for the Figma web API.
 
@@ -64,16 +41,17 @@ module Figma
 
 -}
 
+import Date exposing (Date)
+import Dict exposing (Dict)
+import Figma.Document exposing (..)
+import Figma.Geometry exposing (..)
+import Figma.Internal.Document exposing (..)
+import Figma.Internal.Geometry exposing (..)
+import Http
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline as D
 import Json.Encode as E
-import Date exposing (Date)
-import Dict exposing (Dict)
-import Http
-import Figma.Geometry exposing (..)
-import Figma.Document exposing (..)
-import Figma.Internal.Document exposing (..)
-import Figma.Internal.Geometry exposing (..)
+
 
 
 -- AUTHENTICATION
@@ -121,14 +99,14 @@ baseUrl =
 
 {-| A file key which univocally identifies Figma document on the server.
 
-**Note**: The *file key* can be extracted from any Figma file URL: `https://www.figma.com/file/:key/:title`, or via the [`getFiles`][#getFiles] function.
+**Note**: The _file key_ can be extracted from any Figma file URL: `https://www.figma.com/file/:key/:title`, or via the [`getFiles`][#getFiles] function.
 
 -}
 type alias FileKey =
     String
 
 
-{-| Construct a web request to return the latest version of the file referred by *key* and store it into a `File` record.
+{-| Construct a web request to return the latest version of the file referred by _key_ and store it into a `File` record.
 
     import Http
     import Figma as F
@@ -166,15 +144,15 @@ getFile token fileKey =
         url =
             baseUrl ++ "/v1/files/" ++ fileKey
     in
-        Http.request
-            { method = "GET"
-            , headers = [ authHeader token ]
-            , url = url
-            , body = Http.emptyBody
-            , expect = Http.expectJson fileDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
+    Http.request
+        { method = "GET"
+        , headers = [ authHeader token ]
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson fileDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
 
 
 {-| The file data returned by the server. In particular:
@@ -186,8 +164,10 @@ getFile token fileKey =
 -}
 type alias File =
     { schemaVersion : Int
-    --, name : String  
+
+    --, name : String
     , thumbnailUrl : String
+
     --, lastModified : Date
     , document : Tree
     , components : Dict NodeId ComponentMeta
@@ -198,7 +178,7 @@ fileDecoder : Decoder File
 fileDecoder =
     D.decode File
         |> D.required "schemaVersion" D.int
-        --|> D.required "name" D.string 
+        --|> D.required "name" D.string
         |> D.required "thumbnailUrl" D.string
         --|> D.required "lastModified" dateDecoder
         |> D.required "document" treeDecoder
@@ -253,15 +233,15 @@ getFileWithVersion token fileKey versionId =
         url =
             baseUrl ++ "/v1/files/" ++ fileKey ++ "?version=" ++ versionId
     in
-        Http.request
-            { method = "GET"
-            , headers = [ authHeader token ]
-            , url = url
-            , body = Http.emptyBody
-            , expect = Http.expectJson fileDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
+    Http.request
+        { method = "GET"
+        , headers = [ authHeader token ]
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson fileDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
 
 
 {-| Construct a web request to list the version history of a file. The version history
@@ -280,15 +260,15 @@ getVersions token fileKey =
         url =
             baseUrl ++ "/v1/files/" ++ fileKey ++ "/versions"
     in
-        Http.request
-            { method = "GET"
-            , headers = [ authHeader token ]
-            , url = url
-            , body = Http.emptyBody
-            , expect = Http.expectJson versionsDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
+    Http.request
+        { method = "GET"
+        , headers = [ authHeader token ]
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson versionsDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
 
 
 versionsDecoder : Decoder (List Version)
@@ -317,15 +297,15 @@ getComments token fileKey =
         url =
             baseUrl ++ "/v1/files/" ++ fileKey ++ "/comments"
     in
-        Http.request
-            { method = "GET"
-            , headers = [ authHeader token ]
-            , url = url
-            , body = Http.emptyBody
-            , expect = Http.expectJson commentsDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
+    Http.request
+        { method = "GET"
+        , headers = [ authHeader token ]
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson commentsDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
 
 
 {-| Construct a web request to add a new comment to the document.
@@ -344,15 +324,15 @@ postComment token fileKey comment =
                 ++ fileKey
                 ++ "/comments"
     in
-        Http.request
-            { method = "POST"
-            , headers = [ authHeader token ]
-            , url = url
-            , body = Http.jsonBody <| encodeComment comment
-            , expect = Http.expectJson commentDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
+    Http.request
+        { method = "POST"
+        , headers = [ authHeader token ]
+        , url = url
+        , body = Http.jsonBody <| encodeComment comment
+        , expect = Http.expectJson commentDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
 
 
 
@@ -398,17 +378,17 @@ getFiles :
 getFiles token projectId =
     let
         url =
-            baseUrl ++ "/v1/projects/" ++ (toString projectId) ++ "/files"
+            baseUrl ++ "/v1/projects/" ++ toString projectId ++ "/files"
     in
-        Http.request
-            { method = "GET"
-            , headers = [ authHeader token ]
-            , url = url
-            , body = Http.emptyBody
-            , expect = Http.expectJson filesDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
+    Http.request
+        { method = "GET"
+        , headers = [ authHeader token ]
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson filesDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
 
 
 filesDecoder : Decoder (List FileMeta)
@@ -437,15 +417,15 @@ getProjects token teamId =
         url =
             baseUrl ++ "/v1/teams/" ++ teamId ++ "/projects"
     in
-        Http.request
-            { method = "GET"
-            , headers = [ authHeader token ]
-            , url = url
-            , body = Http.emptyBody
-            , expect = Http.expectJson projectsDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
+    Http.request
+        { method = "GET"
+        , headers = [ authHeader token ]
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson projectsDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
 
 
 projectsDecoder : Decoder (List Project)
@@ -479,7 +459,7 @@ exportNodesAsPng token fileKey ids =
         options =
             { format = PngFormat, scale = 1.0 }
     in
-        exportNodesWithOptions token fileKey options ids
+    exportNodesWithOptions token fileKey options ids
 
 
 {-| Construct a web request to export a list of document nodes into JPEG files at 1x resolution.
@@ -497,7 +477,7 @@ exportNodesAsJpeg token fileKey ids =
         options =
             { format = JpegFormat, scale = 1.0 }
     in
-        exportNodesWithOptions token fileKey options ids
+    exportNodesWithOptions token fileKey options ids
 
 
 {-| Construct a web request to export a list of document nodes into SVG files at 1x resolution.
@@ -515,7 +495,7 @@ exportNodesAsSvg token fileKey ids =
         options =
             { format = SvgFormat, scale = 1.0 }
     in
-        exportNodesWithOptions token fileKey options ids
+    exportNodesWithOptions token fileKey options ids
 
 
 {-| Construct a web request to export a list of document nodes into the given `format` files using
@@ -549,15 +529,15 @@ exportNodesWithOptions token fileKey options ids =
                 ++ "&format="
                 ++ format
     in
-        Http.request
-            { method = "GET"
-            , headers = [ authHeader token ]
-            , url = url
-            , body = Http.emptyBody
-            , expect = Http.expectJson exportDataDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
+    Http.request
+        { method = "GET"
+        , headers = [ authHeader token ]
+        , url = url
+        , body = Http.emptyBody
+        , expect = Http.expectJson exportDataDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
 
 
 formatToString format =
@@ -680,10 +660,10 @@ encodeComment comment =
                         , ( "node_offset", encodePoint point )
                         ]
     in
-        E.object
-            [ ( "message", E.string comment.message )
-            , ( "client_meta", position )
-            ]
+    E.object
+        [ ( "message", E.string comment.message )
+        , ( "client_meta", position )
+        ]
 
 
 
@@ -715,11 +695,11 @@ dateDecoder =
         epoch =
             Date.fromTime 0
     in
-        D.string
-            |> D.andThen
-                (\value ->
-                    D.succeed <|
-                        (Date.fromString value
-                            |> Result.withDefault epoch
-                        )
-                )
+    D.string
+        |> D.andThen
+            (\value ->
+                D.succeed <|
+                    (Date.fromString value
+                        |> Result.withDefault epoch
+                    )
+            )

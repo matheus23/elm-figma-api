@@ -1,14 +1,14 @@
-module Figma.Internal.Layout
-    exposing
-        ( verticalConstraintDecoder
-        , horizontalConstraintDecoder
-        , gridDecoder
-        )
+module Figma.Internal.Layout exposing
+    ( gridDecoder
+    , horizontalConstraintDecoder
+    , verticalConstraintDecoder
+    )
 
+import Figma.Internal.Appearance exposing (..)
+import Figma.Layout exposing (..)
 import Json.Decode as D exposing (Decoder)
 import Json.Decode.Pipeline as D
-import Figma.Layout exposing (..)
-import Figma.Internal.Appearance exposing (..)
+
 
 
 -- GRIDS
