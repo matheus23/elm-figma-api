@@ -1,0 +1,27 @@
+{
+    "type": "package",
+    "name": "matheus23/elm-figma-api",
+    "summary": "Figma web API endpoints, data structures and helper functions.",
+    "license": "MIT",
+    "version": "2.0.0",
+    "exposed-modules": [
+        "Figma",
+        "Figma.Document",
+        "Figma.Geometry",
+        "Figma.Layout",
+        "Figma.Appearance"
+    ],
+    "elm-version": "0.19.0 <= v < 0.20.0",
+    "dependencies": {
+        "NoRedInk/elm-json-decode-pipeline": "1.0.0 <= v < 2.0.0",
+        "elm/core": "1.0.5 <= v < 2.0.0",
+        "elm/http": "2.0.0 <= v < 3.0.0",
+        "elm-explorations/linear-algebra": "1.0.3 <= v < 2.0.0",
+        "zwilias/elm-rosetree": "1.5.0 <= v < 2.0.0"
+    },
+    "test-dependencies": {},
+    "repository": "https://github.com/passiomatic/elm-figma-api.git",
+    "source-directories": [
+        "src"
+    ]
+}
