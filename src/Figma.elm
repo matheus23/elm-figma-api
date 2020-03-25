@@ -5,6 +5,7 @@ module Figma exposing
     , exportNodesAsPng, exportNodesAsJpeg, exportNodesAsSvg, exportNodesWithOptions, ExportedImage
     , TeamId, ProjectId, Project, getProjects, getFiles, FileMeta
     , User
+    , fileDecoder
     )
 
 {-| This module provides endpoints for the Figma web API.
@@ -38,6 +39,11 @@ module Figma exposing
 # User
 
 @docs User
+
+
+# Decoders
+
+@docs fileDecoder
 
 -}
 
@@ -176,6 +182,7 @@ type alias File =
     }
 
 
+{-| -}
 fileDecoder : Decoder File
 fileDecoder =
     D.succeed File
