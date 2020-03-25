@@ -24,7 +24,7 @@
         "zwilias/elm-rosetree": "1.5.0 <= v < 2.0.0"
     },
     "test-dependencies": {},
-    "repository": "https://github.com/passiomatic/elm-figma-api.git",
+    "repository": "https://github.com/matheus23/elm-figma-api.git",
     "source-directories": [
         "src"
     ]
