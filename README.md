@@ -1,3 +1,5 @@
+Info: This is an Elm 0.19 update of an [older Elm 0.18 package](https://github.com/passiomatic/elm-figma-api). What follows is the old readme. It's content's haven't been updated yet. Take the 'Missing pieces' section with a grain of salt: It's been a while since it has been updated.
+
 # Figma API with Elm
 
 This package aims to provide a typed, Elm-friendly access to the Figma web API.
