@@ -395,6 +395,7 @@ type ExportFormat
     = PngFormat
     | JpegFormat
     | SvgFormat
+    | PdfFormat
 
 
 {-| Sizing constraint for exports.

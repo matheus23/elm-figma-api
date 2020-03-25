@@ -298,6 +298,9 @@ exportFormatDecoder =
                     "SVG" ->
                         D.succeed SvgFormat
 
+                    "PDF" ->
+                        D.succeed PdfFormat
+
                     unrecognized ->
                         D.fail <| "Unrecognized export format value: " ++ unrecognized
             )

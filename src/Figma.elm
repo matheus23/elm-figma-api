@@ -562,6 +562,9 @@ formatToString format =
         SvgFormat ->
             "svg"
 
+        PdfFormat ->
+            "pdf"
+
 
 {-| A tuple made of the node ID and the image URL of its rendered representation.
 
