@@ -26,7 +26,7 @@ treeDecoder =
                         D.map2 tree (D.map FrameNode frameDecoder) childrenDecoder
 
                     "GROUP" ->
-                        D.map2 tree (D.map GroupNode frameDecoder) childrenDecoder
+                        D.map2 tree (D.map GroupNode groupDecoder) childrenDecoder
 
                     "VECTOR" ->
                         D.map VectorNode vectorDecoder
@@ -111,7 +111,7 @@ canvasDecoder =
 -- FRAME
 
 
-frameNodeFields =
+groupNodeFields =
     D.required "backgroundColor" colorDecoder
         >> D.optional "exportSettings" (D.list exportSettingDecoder) []
         >> D.required "blendMode" blendModeDecoder
@@ -131,30 +131,20 @@ frameDecoder : Decoder Frame
 frameDecoder =
     D.succeed Frame
         |> sharedNodeFields
-        |> frameNodeFields
+        |> groupNodeFields
+        |> D.custom autoLayoutDecoder
+        |> D.optional "layoutAlign" (D.maybe layoutAlignDecoder) Nothing
 
 
 
 -- GROUP
 
 
-groupDecoder : Decoder Frame
+groupDecoder : Decoder Group
 groupDecoder =
-    D.succeed Frame
+    D.succeed Group
         |> sharedNodeFields
-        |> D.required "backgroundColor" colorDecoder
-        |> D.optional "exportSettings" (D.list exportSettingDecoder) []
-        |> D.required "blendMode" blendModeDecoder
-        |> D.optional "preserveRatio" D.bool False
-        |> D.requiredAt [ "constraints", "horizontal" ] horizontalConstraintDecoder
-        |> D.requiredAt [ "constraints", "vertical" ] verticalConstraintDecoder
-        |> D.optional "transitionNodeID" (D.nullable D.string) Nothing
-        |> D.optional "opacity" D.float 1
-        |> D.required "absoluteBoundingBox" boundingBoxDecoder
-        |> D.required "clipsContent" D.bool
-        |> D.optional "layoutGrids" (D.list gridDecoder) []
-        |> D.optional "effects" (D.list effectDecoder) []
-        |> D.optional "isMask" D.bool False
+        |> groupNodeFields
 
 
 
@@ -267,7 +257,7 @@ instanceDecoder : Decoder Instance
 instanceDecoder =
     D.succeed Instance
         |> sharedNodeFields
-        |> frameNodeFields
+        |> groupNodeFields
         |> D.required "componentId" D.string
 
 

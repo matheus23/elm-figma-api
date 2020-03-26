@@ -1,6 +1,7 @@
 module Figma.Layout exposing
     ( LayoutHorizontalConstraint(..), LayoutVerticalConstraint(..)
     , LayoutGrid(..), Columns, Rows, Grid, GridAlign(..)
+    , LayoutAutoLayout, LayoutMode(..), LayoutCounterAxisSizingMode(..), LayoutAlign(..)
     )
 
 {-|
@@ -14,6 +15,11 @@ module Figma.Layout exposing
 # Grids
 
 @docs LayoutGrid, Columns, Rows, Grid, GridAlign
+
+
+# Auto Layout
+
+@docs LayoutAutoLayout, LayoutMode, LayoutCounterAxisSizingMode, LayoutAlign
 
 -}
 
@@ -94,3 +100,33 @@ type LayoutHorizontalConstraint
     | LeftRightConstraint
     | CenterHorizontalConstraint
     | ScaleHorizontalConstraint
+
+
+{-| -}
+type alias LayoutAutoLayout =
+    { layoutMode : LayoutMode
+    , counterAxisSizingMode : LayoutCounterAxisSizingMode
+    , itemSpacing : Float
+    , horizontalPadding : Float
+    , verticalPadding : Float
+    }
+
+
+{-| -}
+type LayoutMode
+    = VerticalLayoutMode
+    | HorizontalLayoutMode
+
+
+{-| -}
+type LayoutCounterAxisSizingMode
+    = FixedCounterAxisSizingMode
+    | AutoCounterAxisSizingMode
+
+
+{-| -}
+type LayoutAlign
+    = MinLayoutAlign
+    | CenterLayoutAlign
+    | MaxLayoutAlign
+    | StretchLayoutAlign

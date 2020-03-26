@@ -1,6 +1,8 @@
 module Figma.Internal.Layout exposing
-    ( gridDecoder
+    ( autoLayoutDecoder
+    , gridDecoder
     , horizontalConstraintDecoder
+    , layoutAlignDecoder
     , verticalConstraintDecoder
     )
 
@@ -139,4 +141,75 @@ horizontalConstraintDecoder =
 
                     unrecognized ->
                         D.fail <| "Unrecognized layout constraint value: " ++ unrecognized
+            )
+
+
+
+-- AUTO LAYOUT
+
+
+autoLayoutDecoder : Decoder (Maybe LayoutAutoLayout)
+autoLayoutDecoder =
+    D.succeed (Maybe.map5 LayoutAutoLayout)
+        |> D.optional "layoutMode" (D.maybe layoutModeDecoder) Nothing
+        |> D.optional "counterAxisSizingMode" (D.maybe layoutCounterAxisSizingModeDecoder) Nothing
+        |> D.optional "itemSpacing" (D.maybe D.float) Nothing
+        |> D.optional "horizontalPadding" (D.maybe D.float) Nothing
+        |> D.optional "verticalPadding" (D.maybe D.float) Nothing
+
+
+layoutAlignDecoder : Decoder LayoutAlign
+layoutAlignDecoder =
+    D.string
+        |> D.andThen
+            (\value ->
+                case value of
+                    "MIN" ->
+                        D.succeed MinLayoutAlign
+
+                    "CENTER" ->
+                        D.succeed CenterLayoutAlign
+
+                    "MAX" ->
+                        D.succeed MaxLayoutAlign
+
+                    "STRETCH" ->
+                        D.succeed StretchLayoutAlign
+
+                    unrecognized ->
+                        D.fail <| "Unrecognized layout align: " ++ unrecognized
+            )
+
+
+layoutModeDecoder : Decoder LayoutMode
+layoutModeDecoder =
+    D.string
+        |> D.andThen
+            (\value ->
+                case value of
+                    "HORIZONTAL" ->
+                        D.succeed HorizontalLayoutMode
+
+                    "VERTICAL" ->
+                        D.succeed VerticalLayoutMode
+
+                    unrecognized ->
+                        D.fail <| "Unrecognized layout mode: " ++ unrecognized
+            )
+
+
+layoutCounterAxisSizingModeDecoder : Decoder LayoutCounterAxisSizingMode
+layoutCounterAxisSizingModeDecoder =
+    D.string
+        |> D.andThen
+            (\value ->
+                case value of
+                    "FIXED" ->
+                        D.succeed FixedCounterAxisSizingMode
+
+                    "AUTO" ->
+                        D.succeed AutoCounterAxisSizingMode
+
+                    unrecognized ->
+                        D.fail <| "Unrecognized counter axis sizing mode: " ++ unrecognized
             )

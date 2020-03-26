@@ -179,6 +179,8 @@ type alias Frame =
     , layoutGrids : List LayoutGrid
     , effects : List Effect
     , isMask : Bool
+    , autoLayout : Maybe LayoutAutoLayout
+    , layoutAlign : Maybe LayoutAlign
     }
 
 
