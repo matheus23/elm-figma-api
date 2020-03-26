@@ -64,7 +64,7 @@ treeDecoder =
                         D.map2 tree (D.map ComponentNode frameDecoder) childrenDecoder
 
                     "INSTANCE" ->
-                        D.map singleton (D.map InstanceNode instanceDecoder)
+                        D.map2 tree (D.map InstanceNode instanceDecoder) childrenDecoder
 
                     "BOOLEAN_OPERATION" ->
                         D.map2 tree (D.map BooleanGroupNode booleanGroupDecoder) childrenDecoder
