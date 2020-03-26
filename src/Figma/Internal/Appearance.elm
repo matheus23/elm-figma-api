@@ -158,6 +158,7 @@ textStyleDecoder =
         |> D.optional "fills" (D.list paintDecoder) []
         |> D.required "lineHeightPx" D.float
         |> D.required "lineHeightPercent" D.float
+        |> D.optional "textCase" textCaseDecoder Original
 
 
 typeStyleOverrideDecoder : Decoder TextStyleOverride
@@ -174,6 +175,7 @@ typeStyleOverrideDecoder =
         |> D.optional "fills" (D.maybe (D.list paintDecoder)) Nothing
         |> D.optional "lineHeightPx" (D.maybe D.float) Nothing
         |> D.optional "lineHeightPercent" (D.maybe D.float) Nothing
+        |> D.optional "textCase" (D.maybe textCaseDecoder) Nothing
 
 
 styleOverrideDecoder : Decoder (Dict Int TextStyleOverride)
@@ -231,6 +233,35 @@ horizontalAlignDecoder =
 
                     unrecognized ->
                         D.fail <| "Unrecognized text alignment value: " ++ unrecognized
+            )
+
+
+textCaseDecoder : Decoder TextCase
+textCaseDecoder =
+    D.string
+        |> D.andThen
+            (\value ->
+                case value of
+                    "ORIGINAL" ->
+                        D.succeed Original
+
+                    "UPPER" ->
+                        D.succeed Upper
+
+                    "LOWER" ->
+                        D.succeed Lower
+
+                    "TITLE" ->
+                        D.succeed Title
+
+                    "SMALL_CAPS" ->
+                        D.succeed SmallCaps
+
+                    "SMALL_CAPS_FORCED" ->
+                        D.succeed SmallCapsForced
+
+                    unrecognized ->
+                        D.fail <| "Unrecognized text case value: " ++ unrecognized
             )
 
 

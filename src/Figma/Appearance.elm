@@ -1,6 +1,6 @@
 module Figma.Appearance exposing
     ( StrokeAlign(..), Paint(..), SolidColor, Image, ScaleMode(..), Gradient, ColorStop
-    , TextStyle, TextStyleOverride, TextHorizontalAlign(..), TextVerticalAlign(..)
+    , TextStyle, TextStyleOverride, TextHorizontalAlign(..), TextVerticalAlign(..), TextCase(..)
     , BlendMode(..), Effect(..), Blur, Shadow
     )
 
@@ -14,7 +14,7 @@ module Figma.Appearance exposing
 
 # Text styling
 
-@docs TextStyle, TextStyleOverride, TextHorizontalAlign, TextVerticalAlign
+@docs TextStyle, TextStyleOverride, TextHorizontalAlign, TextVerticalAlign, TextCase
 
 
 # Blending modes and effetcs
@@ -112,6 +112,16 @@ type TextHorizontalAlign
     | JustifiedAlign
 
 
+{-| -}
+type TextCase
+    = Original
+    | Upper
+    | Lower
+    | Title
+    | SmallCaps
+    | SmallCapsForced
+
+
 {-| Character formatting.
 -}
 type alias TextStyle =
@@ -126,6 +136,7 @@ type alias TextStyle =
     , fills : List Paint
     , lineHeightPx : Float
     , lineHeightPercent : Float
+    , textCase : TextCase
     }
 
 
@@ -147,6 +158,7 @@ type alias TextStyleOverride =
     , fills : Maybe (List Paint)
     , lineHeightPx : Maybe Float
     , lineHeightPercent : Maybe Float
+    , textCase : Maybe TextCase
     }
 
 
