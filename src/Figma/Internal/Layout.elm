@@ -150,12 +150,22 @@ horizontalConstraintDecoder =
 
 autoLayoutDecoder : Decoder (Maybe LayoutAutoLayout)
 autoLayoutDecoder =
-    D.succeed (Maybe.map5 LayoutAutoLayout)
+    D.succeed identity
         |> D.optional "layoutMode" (D.maybe layoutModeDecoder) Nothing
-        |> D.optional "counterAxisSizingMode" (D.maybe layoutCounterAxisSizingModeDecoder) Nothing
-        |> D.optional "itemSpacing" (D.maybe D.float) Nothing
-        |> D.optional "horizontalPadding" (D.maybe D.float) Nothing
-        |> D.optional "verticalPadding" (D.maybe D.float) Nothing
+        |> D.andThen
+            (\args ->
+                case args of
+                    Nothing ->
+                        D.succeed Nothing
+
+                    Just layoutMode ->
+                        D.succeed (LayoutAutoLayout layoutMode)
+                            |> D.optional "counterAxisSizingMode" layoutCounterAxisSizingModeDecoder AutoCounterAxisSizingMode
+                            |> D.optional "itemSpacing" D.float 0
+                            |> D.optional "horizontalPadding" D.float 0
+                            |> D.optional "verticalPadding" D.float 0
+                            |> D.map Just
+            )
 
 
 layoutAlignDecoder : Decoder LayoutAlign

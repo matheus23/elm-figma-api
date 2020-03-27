@@ -111,7 +111,7 @@ canvasDecoder =
 -- FRAME
 
 
-groupNodeFields =
+frameNodeFields =
     D.required "backgroundColor" colorDecoder
         >> D.optional "exportSettings" (D.list exportSettingDecoder) []
         >> D.required "blendMode" blendModeDecoder
@@ -125,15 +125,15 @@ groupNodeFields =
         >> D.optional "layoutGrids" (D.list gridDecoder) []
         >> D.optional "effects" (D.list effectDecoder) []
         >> D.optional "isMask" D.bool False
+        >> D.optional "layoutAlign" (D.maybe layoutAlignDecoder) Nothing
 
 
 frameDecoder : Decoder Frame
 frameDecoder =
     D.succeed Frame
         |> sharedNodeFields
-        |> groupNodeFields
+        |> frameNodeFields
         |> D.custom autoLayoutDecoder
-        |> D.optional "layoutAlign" (D.maybe layoutAlignDecoder) Nothing
 
 
 
@@ -144,7 +144,7 @@ groupDecoder : Decoder Group
 groupDecoder =
     D.succeed Group
         |> sharedNodeFields
-        |> groupNodeFields
+        |> frameNodeFields
 
 
 
@@ -201,6 +201,7 @@ vectorNodeFields =
         >> D.required "strokes" (D.list paintDecoder)
         >> D.required "strokeWeight" D.float
         >> D.required "strokeAlign" strokeAlignDecoder
+        >> D.optional "layoutAlign" (D.maybe layoutAlignDecoder) Nothing
 
 
 vectorDecoder : Decoder Vector
@@ -257,7 +258,8 @@ instanceDecoder : Decoder Instance
 instanceDecoder =
     D.succeed Instance
         |> sharedNodeFields
-        |> groupNodeFields
+        |> frameNodeFields
+        |> D.custom autoLayoutDecoder
         |> D.required "componentId" D.string
 
 

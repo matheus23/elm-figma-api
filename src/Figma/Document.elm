@@ -179,8 +179,8 @@ type alias Frame =
     , layoutGrids : List LayoutGrid
     , effects : List Effect
     , isMask : Bool
-    , autoLayout : Maybe LayoutAutoLayout
     , layoutAlign : Maybe LayoutAlign
+    , autoLayout : Maybe LayoutAutoLayout
     }
 
 
@@ -207,6 +207,7 @@ type alias Group =
     , layoutGrids : List LayoutGrid
     , effects : List Effect
     , isMask : Bool
+    , layoutAlign : Maybe LayoutAlign
     }
 
 
@@ -234,6 +235,7 @@ type alias BooleanGroup =
     , strokes : List Paint
     , strokeWeight : Float
     , strokeAlign : StrokeAlign
+    , layoutAlign : Maybe LayoutAlign
     , operation : BooleanOperation
     }
 
@@ -273,6 +275,7 @@ type alias Vector =
     , strokes : List Paint
     , strokeWeight : Float
     , strokeAlign : StrokeAlign
+    , layoutAlign : Maybe LayoutAlign
     }
 
 
@@ -300,6 +303,7 @@ type alias Rectangle =
     , strokes : List Paint
     , strokeWeight : Float
     , strokeAlign : StrokeAlign
+    , layoutAlign : Maybe LayoutAlign
     , cornerRadius : Float
     }
 
@@ -343,6 +347,7 @@ type alias Text =
     , strokes : List Paint
     , strokeWeight : Float
     , strokeAlign : StrokeAlign
+    , layoutAlign : Maybe LayoutAlign
     , characters : String
     , style : TextStyle
     , characterStyleOverrides : List Int
@@ -374,6 +379,8 @@ type alias Instance =
     , layoutGrids : List LayoutGrid
     , effects : List Effect
     , isMask : Bool
+    , layoutAlign : Maybe LayoutAlign
+    , autoLayout : Maybe LayoutAutoLayout
     , componentId : NodeId
     }
 
