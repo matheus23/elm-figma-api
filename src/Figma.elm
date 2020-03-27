@@ -52,6 +52,8 @@ import Figma.Document exposing (..)
 import Figma.Geometry exposing (..)
 import Figma.Internal.Document exposing (..)
 import Figma.Internal.Geometry exposing (..)
+import Figma.Internal.Styles exposing (..)
+import Figma.Styles exposing (..)
 import Http
 import Iso8601
 import Json.Decode as D exposing (Decoder)
@@ -178,6 +180,7 @@ type alias File =
 
     --, lastModified : Time.Posix
     , document : Tree
+    , styles : Dict String StyleReference
     , components : Dict NodeId ComponentMeta
     }
 
@@ -191,6 +194,7 @@ fileDecoder =
         |> D.required "thumbnailUrl" D.string
         --|> D.required "lastModified" dateDecoder
         |> D.required "document" treeDecoder
+        |> D.optional "styles" styleReferencesDecoder Dict.empty
         |> D.required "components" (D.dict componentMetaDecoder)
 
 
